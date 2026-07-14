@@ -11,40 +11,40 @@
   
   ⭐ If you like this project, star it on GitHub!
 
-  [Features](#features) • [Architecture](#architecture) • [Getting Started](#getting-started) • [Running the App](#running-the-app)
+  [Features](#features) • [Architecture](#architecture) • [Getting Started](#getting-started) • [Build Configuration](#build-configuration) • [Troubleshooting](#troubleshooting)
 
 </div>
 
 ---
 
-JamLink is a local-network audio synchronization application designed for live jamming sessions. Up to **6 Android devices** (1 Master, 5 Clients) can connect via Wi-Fi Direct or local hotspot and play the same audio file in tight, perceptual synchronization (targeting a **5–15ms sync window**).
+JamLink is a real-time local-network audio synchronization application tailored for live jam sessions. It enables up to **6 Android devices** (1 Master and up to 5 Clients) to connect over an offline Wi-Fi Direct peer-to-peer network and play audio in tight, perceptual synchronization (targeting a **5–15ms synchronization window**).
 
-By bypassing high-latency Android API frameworks and implementing a custom native audio scheduling and network synchronization system, JamLink enables musicians to play together side-by-side with zero distracting delay.
+By utilizing a high-performance native audio scheduler and a custom peer-to-peer time sync protocol, JamLink bypasses high-latency Java-level APIs and keeps latency-critical operations running directly on the native side.
 
 ## Features
 
-- ⚡ **Low-Latency Audio Engine** - Built in C++ using Google's Oboe (AAudio/OpenSL ES) to minimize output buffer delays.
-- ⏱️ **NTP-like Synchronization Protocol** - Custom high-precision time sync protocol over UDP to maintain aligned clocks between Master and Client devices.
-- 📐 **Microphone Click Calibration** - Automated self-calibration measuring individual physical device hardware latencies to adjust playback start times precisely.
-- 🔗 **Native Bridge Discipline** - Time-critical synchronization, network scheduling, and frame rendering remain 100% on the native side (Kotlin/C++) via TurboModules to avoid JS engine garbage collection pauses.
-- 🌐 **Automatic Peer Discovery** - Offline peer discovery and Wi-Fi group assembly utilizing native Wi-Fi Direct and Network Service Discovery (NSD).
+- ⚡ **Low-Latency Audio Engine**: Built in C++ using Google's Oboe (utilizing AAudio or OpenSL ES) to minimize hardware output buffer delays.
+- ⏱️ **NTP-like Time Sync**: Custom high-precision time synchronization over UDP to keep clocks aligned between Master and Client devices.
+- 🌐 **Offline Peer Discovery**: Automatic Wi-Fi Direct (P2P) group formation and socket management without requiring an internet connection.
+- 🔗 **JSI/TurboModule Bridge**: Exposes native controls to React Native UI asynchronously using the New Architecture (JSI) to avoid JS garbage collection pauses.
+- 📐 **Microphone Calibration**: Automatically measures device-specific hardware latencies via mic click tests to offset playback.
 
 ## Architecture
 
 ```mermaid
 graph TD
-    subgraph React Native Layer (TypeScript UI)
+    subgraph "React Native Layer (TypeScript UI)"
         UI[App Screens & Playback UI]
         BridgeSpec[TurboModule Spec]
     end
 
-    subgraph Android Native Module (Kotlin)
+    subgraph "Android Native Module (Kotlin)"
         TM[JamLinkBridgeModule]
         Discovery[Wi-Fi Direct / NSD Engine]
         Sync[NTP Time Sync Client/Server]
     end
 
-    subgraph C++ Audio Engine (Oboe/AAudio)
+    subgraph "C++ Audio Engine (Oboe/AAudio)"
         JNI[JNI Layer]
         Engine[Audio Stream Scheduler]
         Calibrator[Hardware Output Calibrator]
@@ -58,16 +58,16 @@ graph TD
 ```
 
 > [!NOTE]
-> All latency-sensitive operations (clock offset calculations, latency calibration, and Oboe playback scheduled frames) occur entirely within the C++ and Kotlin native environment to ensure thread priority stability. The JS thread is only informed of asynchronous state changes (e.g. connected, track ready, play tap).
+> All latency-critical code (such as UDP packet transmission, time synchronization math, and Oboe playback thread callbacks) runs exclusively on high-priority native threads. The JavaScript thread is used purely for non-blocking UI rendering and user interactions.
 
 ## Getting Started
 
 ### Prerequisites
 
-Ensure you have the following installed on your developer machine:
+Make sure your development machine has:
 - **Node.js** (>= 22.11.0)
-- **Android SDK** with Command Line Tools, NDK (recommended version `27.1.12297006`), and CMake (minimum `3.22.1`)
-- **Android Studio** configured for React Native Android development
+- **Android SDK** with Command Line Tools, NDK (version `27.1.12297006`), and CMake (>= `3.22.1`)
+- **Android Studio** configured for React Native
 
 ### Installation
 
@@ -82,19 +82,38 @@ Ensure you have the following installed on your developer machine:
    npm install
    ```
 
-## Running the App
+## Build Configuration
 
-1. **Start the Metro Bundler:**
-   ```bash
-   npm start
-   ```
+### Java 21+ Native Access
+If compiling with Java 21+, you must permit native access for JNI and Prefab libraries. If you get compilation warning errors during the Gradle build, export the following environment variable before building:
 
-2. **Connect your Android device** via USB debugging (recommended) or launch an emulator.
+```bash
+export JAVA_TOOL_OPTIONS="--enable-native-access=ALL-UNNAMED"
+```
 
-3. **Build and install on Android:**
-   ```bash
-   npm run android
-   ```
+This flag is also configured inside `android/gradle.properties` under `org.gradle.jvmargs`.
 
-> [!TIP]
-> Ensure your Android device supports **API Level 24** (Android 7.0 Nougat) or higher, as low-latency AAudio drivers are only accessible from API 24 onwards.
+### Offline JS Bundling
+When running on physical devices without access to a running Metro server over the same network, bundle the JS assets directly into the application package prior to installation:
+
+```bash
+npx react-native bundle --platform android --dev true --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+```
+
+Then install the build on your device:
+
+```bash
+cd android && ./gradlew installDebug
+```
+
+## Troubleshooting
+
+### Android Wi-Fi Direct Permissions
+- Ensure that **Location (GPS)** is enabled on your device. Android requires Location services to scan for Wi-Fi Direct peers.
+- Click the **Perms** button in the app on first launch to request the required runtime permissions (`ACCESS_FINE_LOCATION` and on Android 13+, `NEARBY_WIFI_DEVICES`).
+
+### Reason Code: 2 (BUSY)
+If clicking **Master (Group)** or **Start Discover** fails with `Reason Code: 2`, it indicates the Wi-Fi framework is busy:
+1. Check that Wi-Fi is enabled (it does not need to be connected to a router, but the antenna must be turned ON).
+2. Tap the **Disconnect** button in the app to clear any stale background groups or connection states.
+3. Turn your device's Wi-Fi toggle OFF and ON again to reset the Android P2P framework state.
