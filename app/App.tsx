@@ -6,15 +6,15 @@
  */
 
 import React from 'react';
-import { StatusBar } from 'react-native';
-import PingTestScreen from './screens/PingTestScreen';
+import { StatusBar, SafeAreaView } from 'react-native';
+import NetworkTestScreen from './screens/NetworkTestScreen';
 
 function App(): React.JSX.Element {
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#1a1a2e' }}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      <PingTestScreen />
-    </>
+      <NetworkTestScreen />
+    </SafeAreaView>
   );
 }
 

@@ -1,13 +1,20 @@
 package com.jamlink.nativelib
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.module.annotations.ReactModule
+import com.jamlink.nativelib.network.NetworkStateManager
 
 @ReactModule(name = JamLinkBridgeModule.NAME)
-class JamLinkBridgeModule(reactContext: ReactApplicationContext) :
+class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
     NativeJamLinkBridgeSpec(reactContext) {
+
+    private val networkManager = NetworkStateManager(reactContext)
 
     companion object {
         const val NAME = "JamLinkBridge"
@@ -15,6 +22,15 @@ class JamLinkBridgeModule(reactContext: ReactApplicationContext) :
         init {
             System.loadLibrary("jamlink-native")
         }
+    }
+
+    init {
+        networkManager.initialize()
+    }
+
+    override fun invalidate() {
+        super.invalidate()
+        networkManager.cleanup()
     }
 
     override fun getName(): String = NAME
@@ -30,5 +46,68 @@ class JamLinkBridgeModule(reactContext: ReactApplicationContext) :
         } catch (e: Exception) {
             promise.reject("PING_ERROR", e.message, e)
         }
+    }
+
+    @ReactMethod
+    override fun requestPermissions(promise: Promise) {
+        val hasLocation = ContextCompat.checkSelfPermission(
+            reactContext, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        
+        var hasNearby = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            hasNearby = ContextCompat.checkSelfPermission(
+                reactContext, Manifest.permission.NEARBY_WIFI_DEVICES
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+        promise.resolve(hasLocation && hasNearby)
+    }
+
+    @ReactMethod
+    override fun startDiscovery(promise: Promise) {
+        networkManager.p2pManager.startDiscovery(
+            onSuccess = { promise.resolve(null) },
+            onFailure = { promise.reject("DISCOVERY_ERROR", "Reason Code: $it") }
+        )
+    }
+
+    @ReactMethod
+    override fun stopDiscovery(promise: Promise) {
+        networkManager.p2pManager.stopDiscovery(
+            onSuccess = { promise.resolve(null) },
+            onFailure = { promise.reject("STOP_DISCOVERY_ERROR", "Reason Code: $it") }
+        )
+    }
+
+    @ReactMethod
+    override fun createGroup(promise: Promise) {
+        networkManager.p2pManager.createGroup(
+            onSuccess = { promise.resolve(null) },
+            onFailure = { promise.reject("CREATE_GROUP_ERROR", "Reason Code: $it") }
+        )
+    }
+
+    @ReactMethod
+    override fun connectToDevice(deviceAddress: String, promise: Promise) {
+        networkManager.p2pManager.connectToDevice(
+            deviceAddress,
+            onSuccess = { promise.resolve(null) },
+            onFailure = { promise.reject("CONNECT_ERROR", "Reason Code: $it") }
+        )
+    }
+
+    @ReactMethod
+    override fun disconnect(promise: Promise) {
+        networkManager.p2pManager.disconnect(
+            onSuccess = { promise.resolve(null) },
+            onFailure = { promise.reject("DISCONNECT_ERROR", "Reason Code: $it") }
+        )
+    }
+
+    @ReactMethod
+    override fun sendCommand(commandJson: String, promise: Promise) {
+        networkManager.sendCommand(commandJson)
+        promise.resolve(null)
     }
 }
