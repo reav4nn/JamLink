@@ -27,7 +27,7 @@ android/.gradle/
 android/build/
 android/app/build/
 android/jamlink-native/build/
-android/.cxx/
+**/.cxx/
 android/local.properties
 android/captures/
 *.hprof

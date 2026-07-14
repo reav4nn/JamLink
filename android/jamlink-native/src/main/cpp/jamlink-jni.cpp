@@ -5,7 +5,7 @@
 extern "C" {
 
 JNIEXPORT jstring JNICALL
-Java_com_jamlink_native_JamLinkBridgeModule_nativePing(
+Java_com_jamlink_nativelib_JamLinkBridgeModule_nativePing(
     JNIEnv *env,
     jobject /* this */,
     jstring input

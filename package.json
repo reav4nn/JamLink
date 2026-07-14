@@ -44,7 +44,7 @@
     "type": "modules",
     "jsSrcsDir": "app/specs",
     "android": {
-      "javaPackageName": "com.jamlink.native"
+      "javaPackageName": "com.jamlink.nativelib"
     }
   }
 }

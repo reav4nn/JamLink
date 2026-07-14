@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jamlink.native"
+    namespace = "com.jamlink.nativelib"
     compileSdk = rootProject.ext["compileSdkVersion"] as Int
 
     defaultConfig {
@@ -31,6 +31,20 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("../app/build/generated/source/codegen/java")
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.configureEach {
+        if ((name.contains("compile") && (name.contains("Kotlin") || name.contains("Java"))) || name.contains("externalNativeBuild")) {
+            dependsOn(":app:generateCodegenArtifactsFromSchema")
+        }
     }
 }
 

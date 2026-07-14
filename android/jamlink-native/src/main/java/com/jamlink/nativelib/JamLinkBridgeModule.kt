@@ -1,4 +1,4 @@
-package com.jamlink.native
+package com.jamlink.nativelib
 
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext

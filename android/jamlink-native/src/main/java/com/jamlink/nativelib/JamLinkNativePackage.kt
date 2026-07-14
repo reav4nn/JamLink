@@ -1,4 +1,4 @@
-package com.jamlink.native
+package com.jamlink.nativelib
 
 import com.facebook.react.TurboReactPackage
 import com.facebook.react.bridge.NativeModule
