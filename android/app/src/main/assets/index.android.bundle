@@ -1287,7 +1287,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    */
 
   _reactNative.AppRegistry.registerComponent(_$$_REQUIRE(_dependencyMap[3], "./app.json").name, () => _App.default);
-},0,[1,2,622,626],"index.js");
+},0,[1,2,622,635],"index.js");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   function _interopRequireDefault(e) {
     return e && e.__esModule ? e : {
@@ -84508,19 +84508,21 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * This will be replaced with proper navigation in Phase 5.
    */
   function App() {
-    return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.SafeAreaView, {
-      style: {
-        flex: 1,
-        backgroundColor: '#1a1a2e'
-      },
-      children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.StatusBar, {
-        barStyle: "light-content",
-        backgroundColor: "#1a1a2e"
-      }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_NetworkTestScreen.default, {})]
+    return /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[5], "react-native-safe-area-context").SafeAreaProvider, {
+      children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_$$_REQUIRE(_dependencyMap[5], "react-native-safe-area-context").SafeAreaView, {
+        style: {
+          flex: 1,
+          backgroundColor: '#0f3460'
+        },
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.StatusBar, {
+          barStyle: "light-content",
+          backgroundColor: "#0f3460"
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_NetworkTestScreen.default, {})]
+      })
     });
   }
   var _default = exports.default = App;
-},622,[1,71,2,623,188],"app/App.tsx");
+},622,[1,71,2,623,188,626],"app/App.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -84539,7 +84541,6 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       peers = _useJamLinkNetwork.peers,
       networkState = _useJamLinkNetwork.networkState,
       lastCommand = _useJamLinkNetwork.lastCommand,
-      requestPermissions = _useJamLinkNetwork.requestPermissions,
       startDiscovery = _useJamLinkNetwork.startDiscovery,
       stopDiscovery = _useJamLinkNetwork.stopDiscovery,
       createGroup = _useJamLinkNetwork.createGroup,
@@ -84553,8 +84554,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var handleRequestPermissions = /*#__PURE__*/function () {
       var _ref = (0, _asyncToGenerator2.default)(function* () {
         try {
-          var granted = yield requestPermissions();
-          _reactNative.Alert.alert('Permissions', granted ? 'Granted' : 'Denied');
+          if ("android" === 'android') {
+            var perms = [_reactNative.PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
+            if (_reactNative.Platform.Version >= 33) {
+              perms.push(_reactNative.PermissionsAndroid.PERMISSIONS.NEARBY_WIFI_DEVICES);
+            }
+            var granted = yield _reactNative.PermissionsAndroid.requestMultiple(perms);
+            var allGranted = Object.values(granted).every(status => status === _reactNative.PermissionsAndroid.RESULTS.GRANTED);
+            _reactNative.Alert.alert('Permissions', allGranted ? 'Granted' : 'Denied');
+          }
         } catch (e) {
           _reactNative.Alert.alert('Error', e.message);
         }
@@ -84566,6 +84574,66 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var handleSend = () => {
       sendCommand(commandInput);
     };
+    var handleStartDiscovery = /*#__PURE__*/function () {
+      var _ref2 = (0, _asyncToGenerator2.default)(function* () {
+        try {
+          yield startDiscovery();
+        } catch (e) {
+          _reactNative.Alert.alert('Discovery Error', e.message);
+        }
+      });
+      return function handleStartDiscovery() {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+    var handleStopDiscovery = /*#__PURE__*/function () {
+      var _ref3 = (0, _asyncToGenerator2.default)(function* () {
+        try {
+          yield stopDiscovery();
+        } catch (e) {
+          _reactNative.Alert.alert('Stop Error', e.message);
+        }
+      });
+      return function handleStopDiscovery() {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+    var handleCreateGroup = /*#__PURE__*/function () {
+      var _ref4 = (0, _asyncToGenerator2.default)(function* () {
+        try {
+          yield createGroup();
+        } catch (e) {
+          _reactNative.Alert.alert('Create Group Error', e.message);
+        }
+      });
+      return function handleCreateGroup() {
+        return _ref4.apply(this, arguments);
+      };
+    }();
+    var handleDisconnect = /*#__PURE__*/function () {
+      var _ref5 = (0, _asyncToGenerator2.default)(function* () {
+        try {
+          yield disconnect();
+        } catch (e) {
+          _reactNative.Alert.alert('Disconnect Error', e.message);
+        }
+      });
+      return function handleDisconnect() {
+        return _ref5.apply(this, arguments);
+      };
+    }();
+    var handleConnectToDevice = /*#__PURE__*/function () {
+      var _ref6 = (0, _asyncToGenerator2.default)(function* (address) {
+        try {
+          yield connectToDevice(address);
+        } catch (e) {
+          _reactNative.Alert.alert('Connect Error', e.message);
+        }
+      });
+      return function handleConnectToDevice(_x) {
+        return _ref6.apply(this, arguments);
+      };
+    }();
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
       style: styles.container,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
@@ -84590,19 +84658,19 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           onPress: handleRequestPermissions
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Button, {
           title: "Master (Group)",
-          onPress: createGroup
+          onPress: handleCreateGroup
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Button, {
           title: "Disconnect",
-          onPress: disconnect
+          onPress: handleDisconnect
         })]
       }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
         style: styles.buttonRow,
         children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Button, {
           title: "Start Discover",
-          onPress: startDiscovery
+          onPress: handleStartDiscovery
         }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Button, {
           title: "Stop Discover",
-          onPress: stopDiscovery
+          onPress: handleStopDiscovery
         })]
       }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Text, {
         style: styles.subtitle,
@@ -84624,7 +84692,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             })]
           }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Button, {
             title: "Connect",
-            onPress: () => connectToDevice(item.address),
+            onPress: () => handleConnectToDevice(item.address),
             disabled: networkState.state === 'CONNECTED'
           })]
         })
@@ -84829,12 +84897,344 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var _reactNative = _$$_REQUIRE(_dependencyMap[0], "react-native");
   var _default = exports.default = _reactNative.TurboModuleRegistry.getEnforcing('JamLinkBridge');
 },625,[2],"app/specs/NativeJamLinkBridge.ts");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  'use client';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  Object.keys(_$$_REQUIRE(_dependencyMap[0], "./SafeAreaContext")).forEach(function (key) {
+    if (key === "default" || key === "__esModule") return;
+    if (key in exports && exports[key] === _$$_REQUIRE(_dependencyMap[0], "./SafeAreaContext")[key]) return;
+    Object.defineProperty(exports, key, {
+      enumerable: true,
+      get: function () {
+        return _$$_REQUIRE(_dependencyMap[0], "./SafeAreaContext")[key];
+      }
+    });
+  });
+  Object.keys(_$$_REQUIRE(_dependencyMap[1], "./SafeAreaView")).forEach(function (key) {
+    if (key === "default" || key === "__esModule") return;
+    if (key in exports && exports[key] === _$$_REQUIRE(_dependencyMap[1], "./SafeAreaView")[key]) return;
+    Object.defineProperty(exports, key, {
+      enumerable: true,
+      get: function () {
+        return _$$_REQUIRE(_dependencyMap[1], "./SafeAreaView")[key];
+      }
+    });
+  });
+  Object.keys(_$$_REQUIRE(_dependencyMap[2], "./InitialWindow")).forEach(function (key) {
+    if (key === "default" || key === "__esModule") return;
+    if (key in exports && exports[key] === _$$_REQUIRE(_dependencyMap[2], "./InitialWindow")[key]) return;
+    Object.defineProperty(exports, key, {
+      enumerable: true,
+      get: function () {
+        return _$$_REQUIRE(_dependencyMap[2], "./InitialWindow")[key];
+      }
+    });
+  });
+  Object.keys(_$$_REQUIRE(_dependencyMap[3], "./SafeArea.types")).forEach(function (key) {
+    if (key === "default" || key === "__esModule") return;
+    if (key in exports && exports[key] === _$$_REQUIRE(_dependencyMap[3], "./SafeArea.types")[key]) return;
+    Object.defineProperty(exports, key, {
+      enumerable: true,
+      get: function () {
+        return _$$_REQUIRE(_dependencyMap[3], "./SafeArea.types")[key];
+      }
+    });
+  });
+},626,[627,630,632,634],"node_modules/react-native-safe-area-context/src/index.tsx");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.SafeAreaInsetsContext = exports.SafeAreaFrameContext = exports.SafeAreaContext = exports.SafeAreaConsumer = void 0;
+  exports.SafeAreaListener = SafeAreaListener;
+  exports.SafeAreaProvider = SafeAreaProvider;
+  exports.useSafeArea = useSafeArea;
+  exports.useSafeAreaFrame = useSafeAreaFrame;
+  exports.useSafeAreaInsets = useSafeAreaInsets;
+  exports.withSafeAreaInsets = withSafeAreaInsets;
+  var _slicedToArray2 = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "@babel/runtime/helpers/slicedToArray"));
+  var React = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[2], "react"));
+  var _reactNative = _$$_REQUIRE(_dependencyMap[3], "react-native");
+  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[4], "react/jsx-runtime");
+  var _jsxFileName = "/home/reavann/Documents/Lahiyeler/JamLink/node_modules/react-native-safe-area-context/src/SafeAreaContext.tsx";
+  function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
+  var isDev = process.env.NODE_ENV !== 'production';
+  var SafeAreaInsetsContext = exports.SafeAreaInsetsContext = React.createContext(null);
+  if (isDev) {
+    SafeAreaInsetsContext.displayName = 'SafeAreaInsetsContext';
+  }
+  var SafeAreaFrameContext = exports.SafeAreaFrameContext = React.createContext(null);
+  if (isDev) {
+    SafeAreaFrameContext.displayName = 'SafeAreaFrameContext';
+  }
+  function SafeAreaProvider({
+    children,
+    initialMetrics,
+    initialSafeAreaInsets,
+    style,
+    ...others
+  }) {
+    var parentInsets = useParentSafeAreaInsets();
+    var parentFrame = useParentSafeAreaFrame();
+    var _React$useState = React.useState(initialMetrics?.insets ?? initialSafeAreaInsets ?? parentInsets ?? null),
+      _React$useState2 = (0, _slicedToArray2.default)(_React$useState, 2),
+      insets = _React$useState2[0],
+      setInsets = _React$useState2[1];
+    var _React$useState3 = React.useState(initialMetrics?.frame ?? parentFrame ?? {
+        // Backwards compat so we render anyway if we don't have frame.
+        x: 0,
+        y: 0,
+        width: _reactNative.Dimensions.get('window').width,
+        height: _reactNative.Dimensions.get('window').height
+      }),
+      _React$useState4 = (0, _slicedToArray2.default)(_React$useState3, 2),
+      frame = _React$useState4[0],
+      setFrame = _React$useState4[1];
+    var onInsetsChange = React.useCallback(event => {
+      var _event$nativeEvent = event.nativeEvent,
+        nextFrame = _event$nativeEvent.frame,
+        nextInsets = _event$nativeEvent.insets;
+      setFrame(curFrame => {
+        if (
+        // Backwards compat with old native code that won't send frame.
+        nextFrame && (nextFrame.height !== curFrame.height || nextFrame.width !== curFrame.width || nextFrame.x !== curFrame.x || nextFrame.y !== curFrame.y)) {
+          return nextFrame;
+        } else {
+          return curFrame;
+        }
+      });
+      setInsets(curInsets => {
+        if (!curInsets || nextInsets.bottom !== curInsets.bottom || nextInsets.left !== curInsets.left || nextInsets.right !== curInsets.right || nextInsets.top !== curInsets.top) {
+          return nextInsets;
+        } else {
+          return curInsets;
+        }
+      });
+    }, []);
+    return /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[5], "./NativeSafeAreaProvider").NativeSafeAreaProvider, {
+      style: [styles.fill, style],
+      onInsetsChange: onInsetsChange,
+      ...others,
+      children: insets != null ? /*#__PURE__*/(0, _jsxRuntime.jsx)(SafeAreaFrameContext.Provider, {
+        value: frame,
+        children: /*#__PURE__*/(0, _jsxRuntime.jsx)(SafeAreaInsetsContext.Provider, {
+          value: insets,
+          children: children
+        })
+      }) : null
+    });
+  }
+  function SafeAreaListener({
+    onChange,
+    style,
+    children,
+    ...others
+  }) {
+    return /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[5], "./NativeSafeAreaProvider").NativeSafeAreaProvider, {
+      ...others,
+      style: [styles.fill, style],
+      onInsetsChange: e => {
+        onChange({
+          insets: e.nativeEvent.insets,
+          frame: e.nativeEvent.frame
+        });
+      },
+      children: children
+    });
+  }
+  var styles = _reactNative.StyleSheet.create({
+    fill: {
+      flex: 1
+    }
+  });
+  function useParentSafeAreaInsets() {
+    return React.useContext(SafeAreaInsetsContext);
+  }
+  function useParentSafeAreaFrame() {
+    return React.useContext(SafeAreaFrameContext);
+  }
+  var NO_INSETS_ERROR = 'No safe area value available. Make sure you are rendering `<SafeAreaProvider>` at the top of your app.';
+  function useSafeAreaInsets() {
+    var insets = React.useContext(SafeAreaInsetsContext);
+    if (insets == null) {
+      throw new Error(NO_INSETS_ERROR);
+    }
+    return insets;
+  }
+  function useSafeAreaFrame() {
+    var frame = React.useContext(SafeAreaFrameContext);
+    if (frame == null) {
+      throw new Error(NO_INSETS_ERROR);
+    }
+    return frame;
+  }
+  function withSafeAreaInsets(WrappedComponent) {
+    return React.forwardRef((props, ref) => {
+      var insets = useSafeAreaInsets();
+      return /*#__PURE__*/(0, _jsxRuntime.jsx)(WrappedComponent, {
+        ...props,
+        insets: insets,
+        ref: ref
+      });
+    });
+  }
+
+  /**
+   * @deprecated
+   */
+  function useSafeArea() {
+    return useSafeAreaInsets();
+  }
+
+  /**
+   * @deprecated
+   */
+  var SafeAreaConsumer = exports.SafeAreaConsumer = SafeAreaInsetsContext.Consumer;
+
+  /**
+   * @deprecated
+   */
+  var SafeAreaContext = exports.SafeAreaContext = SafeAreaInsetsContext;
+},627,[1,14,71,2,188,628],"node_modules/react-native-safe-area-context/src/SafeAreaContext.tsx");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  Object.defineProperty(exports, "NativeSafeAreaProvider", {
+    enumerable: true,
+    get: function () {
+      return _NativeSafeAreaProvider.default;
+    }
+  });
+  var _NativeSafeAreaProvider = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "./specs/NativeSafeAreaProvider"));
+},628,[1,629],"node_modules/react-native-safe-area-context/src/NativeSafeAreaProvider.tsx");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = exports.__INTERNAL_VIEW_CONFIG = void 0;
+  var _codegenNativeComponent = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/Utilities/codegenNativeComponent"));
+  var nativeComponentName = 'RNCSafeAreaProvider';
+  var __INTERNAL_VIEW_CONFIG = exports.__INTERNAL_VIEW_CONFIG = {
+    uiViewClassName: "RNCSafeAreaProvider",
+    directEventTypes: {
+      topInsetsChange: {
+        registrationName: "onInsetsChange"
+      }
+    },
+    validAttributes: {
+      ..._$$_REQUIRE(_dependencyMap[2], "react-native/Libraries/NativeComponent/ViewConfigIgnore").ConditionallyIgnoredEventHandlers({
+        onInsetsChange: true
+      })
+    }
+  };
+  var _default = exports.default = _$$_REQUIRE(_dependencyMap[3], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
+},629,[1,314,102,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaProvider.ts");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.SafeAreaView = void 0;
+  var _react = _interopRequireWildcard(_$$_REQUIRE(_dependencyMap[1], "react"));
+  var React = _react;
+  var _NativeSafeAreaView = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[2], "./specs/NativeSafeAreaView"));
+  var _jsxRuntime = _$$_REQUIRE(_dependencyMap[3], "react/jsx-runtime");
+  var _jsxFileName = "/home/reavann/Documents/Lahiyeler/JamLink/node_modules/react-native-safe-area-context/src/SafeAreaView.tsx";
+  function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function (e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != typeof e && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
+  var defaultEdges = {
+    top: 'additive',
+    left: 'additive',
+    bottom: 'additive',
+    right: 'additive'
+  };
+  var SafeAreaView = exports.SafeAreaView = React.forwardRef(({
+    edges,
+    ...props
+  }, ref) => {
+    var nativeEdges = (0, _react.useMemo)(() => {
+      if (edges == null) {
+        return defaultEdges;
+      }
+      var edgesObj = Array.isArray(edges) ? edges.reduce((acc, edge) => {
+        acc[edge] = 'additive';
+        return acc;
+      }, {}) :
+      // ts has trouble with refining readonly arrays.
+      edges;
+
+      // make sure that we always pass all edges, required for fabric
+      var requiredEdges = {
+        top: edgesObj.top ?? 'off',
+        right: edgesObj.right ?? 'off',
+        bottom: edgesObj.bottom ?? 'off',
+        left: edgesObj.left ?? 'off'
+      };
+      return requiredEdges;
+    }, [edges]);
+    return /*#__PURE__*/(0, _jsxRuntime.jsx)(_NativeSafeAreaView.default, {
+      ...props,
+      edges: nativeEdges,
+      ref: ref
+    });
+  });
+},630,[1,71,631,188],"node_modules/react-native-safe-area-context/src/SafeAreaView.tsx");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = exports.__INTERNAL_VIEW_CONFIG = void 0;
+  var _codegenNativeComponent = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "react-native/Libraries/Utilities/codegenNativeComponent"));
+  var nativeComponentName = 'RNCSafeAreaView';
+  var __INTERNAL_VIEW_CONFIG = exports.__INTERNAL_VIEW_CONFIG = {
+    uiViewClassName: "RNCSafeAreaView",
+    validAttributes: {
+      mode: true,
+      edges: true
+    }
+  };
+  var _default = exports.default = _$$_REQUIRE(_dependencyMap[2], "react-native/Libraries/NativeComponent/NativeComponentRegistry").get(nativeComponentName, () => __INTERNAL_VIEW_CONFIG);
+},631,[1,314,75],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaView.ts");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.initialWindowSafeAreaInsets = exports.initialWindowMetrics = void 0;
+  var _NativeSafeAreaContext = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[1], "./specs/NativeSafeAreaContext"));
+  var initialWindowMetrics = exports.initialWindowMetrics = _NativeSafeAreaContext.default?.getConstants?.()?.initialWindowMetrics ?? null;
+
+  /**
+   * @deprecated
+   */
+  var initialWindowSafeAreaInsets = exports.initialWindowSafeAreaInsets = initialWindowMetrics?.insets;
+},632,[1,633],"node_modules/react-native-safe-area-context/src/InitialWindow.native.ts");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = void 0;
+  var _reactNative = _$$_REQUIRE(_dependencyMap[0], "react-native");
+  var _default = exports.default = _reactNative.TurboModuleRegistry.get('RNCSafeAreaContext');
+},633,[2],"node_modules/react-native-safe-area-context/src/specs/NativeSafeAreaContext.ts");
+__d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+},634,[],"node_modules/react-native-safe-area-context/src/SafeArea.types.ts");
 __d(function(global, require, _importDefaultUnused, _importAllUnused, module, exports, _dependencyMapUnused) {
   module.exports = {
   "name": "JamLink",
   "displayName": "JamLink"
 }
 ;
-},626,[],"app.json");
+},635,[],"app.json");
 __r(109);
 __r(0);

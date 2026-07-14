@@ -6,15 +6,18 @@
  */
 
 import React from 'react';
-import { StatusBar, SafeAreaView } from 'react-native';
+import { StatusBar } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import NetworkTestScreen from './screens/NetworkTestScreen';
 
 function App(): React.JSX.Element {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#1a1a2e' }}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      <NetworkTestScreen />
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#0f3460' }}>
+        <StatusBar barStyle="light-content" backgroundColor="#0f3460" />
+        <NetworkTestScreen />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

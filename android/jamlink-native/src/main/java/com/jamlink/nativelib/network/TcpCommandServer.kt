@@ -25,14 +25,20 @@ class TcpCommandServer {
     suspend fun start(port: Int = 8988) = withContext(Dispatchers.IO) {
         try {
             serverSocket = ServerSocket(port)
-            serverJob = launch {
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext
+        }
+        
+        serverJob = launch {
+            try {
                 while (isActive) {
                     val socket = serverSocket?.accept() ?: break
                     launch { handleClient(socket) }
                 }
+            } catch (e: Exception) {
+                // SocketException is expected when serverSocket is closed by stop()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 

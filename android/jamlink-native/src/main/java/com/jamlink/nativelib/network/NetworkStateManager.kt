@@ -53,6 +53,10 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
                     currentRole = "CLIENT"
                     sendConnectionState("CONNECTED", "CLIENT", info.groupOwnerAddress?.hostAddress)
                     startTcpClient(info.groupOwnerAddress?.hostAddress ?: return@collectLatest)
+                } else {
+                    currentRole = "NONE"
+                    sendConnectionState("DISCONNECTED")
+                    stopTcp()
                 }
             }
         }

@@ -66,48 +66,72 @@ class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
 
     @ReactMethod
     override fun startDiscovery(promise: Promise) {
-        networkManager.p2pManager.startDiscovery(
-            onSuccess = { promise.resolve(null) },
-            onFailure = { promise.reject("DISCOVERY_ERROR", "Reason Code: $it") }
-        )
+        try {
+            networkManager.p2pManager.startDiscovery(
+                onSuccess = { promise.resolve(null) },
+                onFailure = { promise.reject("DISCOVERY_ERROR", "Reason Code: $it") }
+            )
+        } catch (e: Exception) {
+            promise.reject("DISCOVERY_CRASH", e.message, e)
+        }
     }
 
     @ReactMethod
     override fun stopDiscovery(promise: Promise) {
-        networkManager.p2pManager.stopDiscovery(
-            onSuccess = { promise.resolve(null) },
-            onFailure = { promise.reject("STOP_DISCOVERY_ERROR", "Reason Code: $it") }
-        )
+        try {
+            networkManager.p2pManager.stopDiscovery(
+                onSuccess = { promise.resolve(null) },
+                onFailure = { promise.reject("STOP_DISCOVERY_ERROR", "Reason Code: $it") }
+            )
+        } catch (e: Exception) {
+            promise.reject("STOP_DISCOVERY_CRASH", e.message, e)
+        }
     }
 
     @ReactMethod
     override fun createGroup(promise: Promise) {
-        networkManager.p2pManager.createGroup(
-            onSuccess = { promise.resolve(null) },
-            onFailure = { promise.reject("CREATE_GROUP_ERROR", "Reason Code: $it") }
-        )
+        try {
+            networkManager.p2pManager.createGroup(
+                onSuccess = { promise.resolve(null) },
+                onFailure = { promise.reject("CREATE_GROUP_ERROR", "Reason Code: $it") }
+            )
+        } catch (e: Exception) {
+            promise.reject("CREATE_GROUP_CRASH", e.message, e)
+        }
     }
 
     @ReactMethod
     override fun connectToDevice(deviceAddress: String, promise: Promise) {
-        networkManager.p2pManager.connectToDevice(
-            deviceAddress,
-            onSuccess = { promise.resolve(null) },
-            onFailure = { promise.reject("CONNECT_ERROR", "Reason Code: $it") }
-        )
+        try {
+            networkManager.p2pManager.connectToDevice(
+                deviceAddress,
+                onSuccess = { promise.resolve(null) },
+                onFailure = { promise.reject("CONNECT_ERROR", "Reason Code: $it") }
+            )
+        } catch (e: Exception) {
+            promise.reject("CONNECT_CRASH", e.message, e)
+        }
     }
 
     @ReactMethod
     override fun disconnect(promise: Promise) {
-        networkManager.p2pManager.disconnect(
-            onSuccess = { promise.resolve(null) },
-            onFailure = { promise.reject("DISCONNECT_ERROR", "Reason Code: $it") }
-        )
+        try {
+            networkManager.p2pManager.disconnect(
+                onSuccess = { promise.resolve(null) },
+                onFailure = { promise.reject("DISCONNECT_ERROR", "Reason Code: $it") }
+            )
+        } catch (e: Exception) {
+            promise.reject("DISCONNECT_CRASH", e.message, e)
+        }
     }
 
     @ReactMethod
     override fun sendCommand(commandJson: String, promise: Promise) {
-        networkManager.sendCommand(commandJson)
-        promise.resolve(null)
+        try {
+            networkManager.sendCommand(commandJson)
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("SEND_COMMAND_CRASH", e.message, e)
+        }
     }
 }

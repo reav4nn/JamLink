@@ -30,9 +30,13 @@ class TcpCommandClient {
             val reader = BufferedReader(InputStreamReader(socket!!.getInputStream()))
             
             clientJob = launch {
-                while (isActive) {
-                    val line = reader.readLine() ?: break
-                    _commands.emit(line)
+                try {
+                    while (isActive) {
+                        val line = reader.readLine() ?: break
+                        _commands.emit(line)
+                    }
+                } catch (e: Exception) {
+                    // SocketException expected when socket is closed
                 }
             }
         } catch (e: Exception) {

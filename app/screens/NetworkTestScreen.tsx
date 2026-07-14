@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, TextInput, Alert, PermissionsAndroid, Platform } from 'react-native';
 import { useJamLinkNetwork } from '../hooks/useJamLinkNetwork';
 
 export default function NetworkTestScreen() {
@@ -7,7 +7,6 @@ export default function NetworkTestScreen() {
     peers,
     networkState,
     lastCommand,
-    requestPermissions,
     startDiscovery,
     stopDiscovery,
     createGroup,
@@ -20,8 +19,20 @@ export default function NetworkTestScreen() {
 
   const handleRequestPermissions = async () => {
     try {
-      const granted = await requestPermissions();
-      Alert.alert('Permissions', granted ? 'Granted' : 'Denied');
+      if (Platform.OS === 'android') {
+        const perms = [
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        ];
+        if (Platform.Version >= 33) {
+          perms.push(PermissionsAndroid.PERMISSIONS.NEARBY_WIFI_DEVICES);
+        }
+        
+        const granted = await PermissionsAndroid.requestMultiple(perms);
+        const allGranted = Object.values(granted).every(
+          status => status === PermissionsAndroid.RESULTS.GRANTED
+        );
+        Alert.alert('Permissions', allGranted ? 'Granted' : 'Denied');
+      }
     } catch (e: any) {
       Alert.alert('Error', e.message);
     }
@@ -29,6 +40,46 @@ export default function NetworkTestScreen() {
 
   const handleSend = () => {
     sendCommand(commandInput);
+  };
+
+  const handleStartDiscovery = async () => {
+    try {
+      await startDiscovery();
+    } catch (e: any) {
+      Alert.alert('Discovery Error', e.message);
+    }
+  };
+
+  const handleStopDiscovery = async () => {
+    try {
+      await stopDiscovery();
+    } catch (e: any) {
+      Alert.alert('Stop Error', e.message);
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    try {
+      await createGroup();
+    } catch (e: any) {
+      Alert.alert('Create Group Error', e.message);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+    } catch (e: any) {
+      Alert.alert('Disconnect Error', e.message);
+    }
+  };
+
+  const handleConnectToDevice = async (address: string) => {
+    try {
+      await connectToDevice(address);
+    } catch (e: any) {
+      Alert.alert('Connect Error', e.message);
+    }
   };
 
   return (
@@ -45,13 +96,13 @@ export default function NetworkTestScreen() {
 
       <View style={styles.buttonRow}>
         <Button title="Perms" onPress={handleRequestPermissions} />
-        <Button title="Master (Group)" onPress={createGroup} />
-        <Button title="Disconnect" onPress={disconnect} />
+        <Button title="Master (Group)" onPress={handleCreateGroup} />
+        <Button title="Disconnect" onPress={handleDisconnect} />
       </View>
 
       <View style={styles.buttonRow}>
-        <Button title="Start Discover" onPress={startDiscovery} />
-        <Button title="Stop Discover" onPress={stopDiscovery} />
+        <Button title="Start Discover" onPress={handleStartDiscovery} />
+        <Button title="Stop Discover" onPress={handleStopDiscovery} />
       </View>
 
       <Text style={styles.subtitle}>Peers Found:</Text>
@@ -64,7 +115,7 @@ export default function NetworkTestScreen() {
               <Text style={styles.peerName}>{item.name}</Text>
               <Text style={styles.peerAddress}>{item.address} (Status: {item.status})</Text>
             </View>
-            <Button title="Connect" onPress={() => connectToDevice(item.address)} disabled={networkState.state === 'CONNECTED'} />
+            <Button title="Connect" onPress={() => handleConnectToDevice(item.address)} disabled={networkState.state === 'CONNECTED'} />
           </View>
         )}
       />
