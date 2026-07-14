@@ -88,3 +88,5 @@ xcuserdata
 # Local assistant / planning files
 CLAUDE.md
 docs/
+.agents/
+skills-lock.json
