@@ -95,14 +95,14 @@ export default function NetworkTestScreen() {
       </View>
 
       <View style={styles.buttonRow}>
-        <Button title="Perms" onPress={handleRequestPermissions} />
-        <Button title="Master (Group)" onPress={handleCreateGroup} />
-        <Button title="Disconnect" onPress={handleDisconnect} />
+        <View style={styles.buttonWrapper}><Button title="Perms" onPress={handleRequestPermissions} /></View>
+        <View style={styles.buttonWrapper}><Button title="Master (Group)" onPress={handleCreateGroup} /></View>
+        <View style={styles.buttonWrapper}><Button title="Disconnect" onPress={handleDisconnect} /></View>
       </View>
 
       <View style={styles.buttonRow}>
-        <Button title="Start Discover" onPress={handleStartDiscovery} />
-        <Button title="Stop Discover" onPress={handleStopDiscovery} />
+        <View style={styles.buttonWrapper}><Button title="Start Discover" onPress={handleStartDiscovery} /></View>
+        <View style={styles.buttonWrapper}><Button title="Stop Discover" onPress={handleStopDiscovery} /></View>
       </View>
 
       <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Peers Found:</Text>
@@ -170,8 +170,15 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
     marginBottom: 12,
+  },
+  buttonWrapper: {
+    flexBasis: '30%',
+    minWidth: 100,
+    flexGrow: 1,
   },
   peerItem: {
     backgroundColor: '#0f3460',
