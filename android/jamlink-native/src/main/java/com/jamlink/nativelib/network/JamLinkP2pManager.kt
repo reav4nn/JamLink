@@ -10,6 +10,7 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pDeviceList
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
+import android.net.wifi.WpsInfo
 import android.os.Looper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -146,11 +147,41 @@ class JamLinkP2pManager(private val context: Context) {
     fun connectToDevice(deviceAddress: String, onSuccess: () -> Unit, onFailure: (Int) -> Unit) {
         val config = WifiP2pConfig().apply {
             this.deviceAddress = deviceAddress
+            this.wps.setup = WpsInfo.PBC
         }
+        
+        Log.d("JamLinkP2p", "connectToDevice: Cancelling any pending connection first...")
+        manager?.cancelConnect(channel, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                Log.d("JamLinkP2p", "cancelConnect: onSuccess")
+                executeConnect(config, onSuccess, onFailure)
+            }
+            override fun onFailure(reasonCode: Int) {
+                Log.d("JamLinkP2p", "cancelConnect: onFailure (reasonCode=$reasonCode) - proceeding anyway")
+                executeConnect(config, onSuccess, onFailure)
+            }
+        }) ?: run {
+            Log.e("JamLinkP2p", "cancelConnect failed: manager is null")
+            onFailure(WifiP2pManager.ERROR)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun executeConnect(config: WifiP2pConfig, onSuccess: () -> Unit, onFailure: (Int) -> Unit) {
+        Log.d("JamLinkP2p", "executeConnect: Using config { deviceAddress=${config.deviceAddress}, wps.setup=${config.wps.setup} }")
         manager?.connect(channel, config, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() = onSuccess()
-            override fun onFailure(reasonCode: Int) = onFailure(reasonCode)
-        }) ?: onFailure(WifiP2pManager.ERROR)
+            override fun onSuccess() {
+                Log.d("JamLinkP2p", "connect: onSuccess callback fired")
+                onSuccess()
+            }
+            override fun onFailure(reasonCode: Int) {
+                Log.e("JamLinkP2p", "connect: onFailure callback fired with reasonCode=$reasonCode")
+                onFailure(reasonCode)
+            }
+        }) ?: run {
+            Log.e("JamLinkP2p", "connect failed: manager is null")
+            onFailure(WifiP2pManager.ERROR)
+        }
     }
 
     fun disconnect(onSuccess: () -> Unit, onFailure: (Int) -> Unit) {

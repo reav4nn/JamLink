@@ -9,7 +9,7 @@ export interface Peer {
 }
 
 export interface NetworkState {
-  state: 'DISCONNECTED' | 'CONNECTED';
+  state: 'DISCONNECTED' | 'CONNECTED' | 'PENDING';
   role: 'MASTER' | 'CLIENT' | 'NONE';
   masterIp?: string;
 }

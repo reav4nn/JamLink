@@ -108,7 +108,10 @@ class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
         try {
             networkManager.p2pManager.connectToDevice(
                 deviceAddress,
-                onSuccess = { promise.resolve(null) },
+                onSuccess = { 
+                    networkManager.sendConnectionPending()
+                    promise.resolve(null) 
+                },
                 onFailure = { promise.reject("CONNECT_ERROR", "Reason Code: $it") }
             )
         } catch (e: Exception) {

@@ -87,7 +87,7 @@ export default function NetworkTestScreen() {
       <Text style={styles.title}>Network Test (Phase 2)</Text>
       
       <View style={styles.stateContainer}>
-        <Text style={styles.stateText}>State: {networkState.state}</Text>
+        <Text style={styles.stateText}>State: {networkState.state === 'PENDING' ? 'Waiting for Master to accept...' : networkState.state}</Text>
         <Text style={styles.stateText}>Role: {networkState.role}</Text>
         {networkState.masterIp && (
           <Text style={styles.stateText}>Master IP: {networkState.masterIp}</Text>

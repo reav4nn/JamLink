@@ -125,6 +125,10 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
         stopTcp()
     }
 
+    fun sendConnectionPending() {
+        sendConnectionState("PENDING")
+    }
+
     private fun sendConnectionState(state: String, role: String = "NONE", masterIp: String? = null) {
         val map = Arguments.createMap()
         map.putString("state", state)
