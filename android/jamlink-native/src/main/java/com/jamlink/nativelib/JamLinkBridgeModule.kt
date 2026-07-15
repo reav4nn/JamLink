@@ -142,6 +142,16 @@ class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    override fun getNetworkState(promise: Promise) {
+        try {
+            val stateJson = networkManager.getNetworkStateJson()
+            promise.resolve(stateJson)
+        } catch (e: Exception) {
+            promise.reject("GET_NETWORK_STATE_CRASH", e.message, e)
+        }
+    }
+
+    @ReactMethod
     override fun getTimeSyncState(promise: Promise) {
         try {
             val stateJson = networkManager.timeSyncManager.getTimeSyncStateJson()

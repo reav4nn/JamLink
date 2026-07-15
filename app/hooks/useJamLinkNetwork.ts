@@ -27,7 +27,16 @@ export function useJamLinkNetwork() {
   const [lastCommand, setLastCommand] = useState<string | null>(null);
   const [timeSyncState, setTimeSyncState] = useState<TimeSyncState>({ status: 'NOT_SYNCED', offsetMs: 0, rttMs: 0, sampleCount: 0 });
 
+  const getNetworkState = useCallback(async () => {
+    const json = await NativeJamLinkBridge.getNetworkState();
+    return JSON.parse(json) as NetworkState;
+  }, []);
+
   useEffect(() => {
+    // Fetch initial state
+    getNetworkState().then(setNetworkState).catch(console.error);
+    getTimeSyncState().then(setTimeSyncState).catch(console.error);
+
     const peerSub = DeviceEventEmitter.addListener('onPeersUpdated', (peersList: Peer[]) => {
       setPeers(peersList || []);
     });
@@ -106,6 +115,7 @@ export function useJamLinkNetwork() {
     disconnect,
     sendCommand,
     timeSyncState,
+    getNetworkState,
     getTimeSyncState,
     forceSyncNow,
   };

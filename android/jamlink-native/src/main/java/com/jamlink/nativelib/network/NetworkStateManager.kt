@@ -21,6 +21,8 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
     val timeSyncManager: TimeSyncManager = TimeSyncManager(scope)
 
     private var currentRole: String = "NONE" // "MASTER", "CLIENT", "NONE"
+    private var currentStateString: String = "DISCONNECTED" // "DISCONNECTED", "CONNECTED", "PENDING"
+    private var currentMasterIp: String? = null
 
     fun initialize() {
         p2pManager.initialize()
@@ -130,6 +132,10 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
     }
 
     private fun sendConnectionState(state: String, role: String = "NONE", masterIp: String? = null) {
+        currentStateString = state
+        currentRole = role
+        currentMasterIp = masterIp
+        
         val map = Arguments.createMap()
         map.putString("state", state)
         map.putString("role", role)
@@ -137,6 +143,11 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
             map.putString("masterIp", masterIp)
         }
         sendEvent("onConnectionStateChanged", map)
+    }
+
+    fun getNetworkStateJson(): String {
+        val ipStr = if (currentMasterIp != null) ",\"masterIp\":\"$currentMasterIp\"" else ""
+        return "{\"state\":\"$currentStateString\",\"role\":\"$currentRole\"$ipStr}"
     }
 
     private fun sendEvent(eventName: String, data: Any) {

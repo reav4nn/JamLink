@@ -10,6 +10,7 @@ export interface Spec extends TurboModule {
   connectToDevice(deviceAddress: string): Promise<void>;
   disconnect(): Promise<void>;
   sendCommand(commandJson: string): Promise<void>;
+  getNetworkState(): Promise<string>;
   
   // Phase 3 — Time Sync
   getTimeSyncState(): Promise<string>;
