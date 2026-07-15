@@ -16,25 +16,25 @@ export default function TimeSyncScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Time Sync (Phase 3)</Text>
+      <Text maxFontSizeMultiplier={1.2} style={styles.title}>Time Sync (Phase 3)</Text>
       
       <View style={styles.card}>
-        <Text style={styles.label}>Network Role:</Text>
-        <Text style={styles.value}>{networkState.role} ({networkState.state})</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.label}>Network Role:</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.value}>{networkState.role} ({networkState.state})</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Sync Status:</Text>
-        <Text style={[styles.value, { color: getStatusColor() }]}>{timeSyncState.status}</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.label}>Sync Status:</Text>
+        <Text maxFontSizeMultiplier={1.2} style={[styles.value, { color: getStatusColor() }]}>{timeSyncState.status}</Text>
         
-        <Text style={styles.label}>Clock Offset:</Text>
-        <Text style={styles.value}>{timeSyncState.offsetMs > 0 ? '+' : ''}{timeSyncState.offsetMs} ms</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.label}>Clock Offset:</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.value}>{timeSyncState.offsetMs > 0 ? '+' : ''}{timeSyncState.offsetMs} ms</Text>
         
-        <Text style={styles.label}>Round-Trip Time (RTT):</Text>
-        <Text style={styles.value}>{timeSyncState.rttMs} ms</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.label}>Round-Trip Time (RTT):</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.value}>{timeSyncState.rttMs} ms</Text>
         
-        <Text style={styles.label}>Valid Samples Count:</Text>
-        <Text style={styles.value}>{timeSyncState.sampleCount}</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.label}>Valid Samples Count:</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.value}>{timeSyncState.sampleCount}</Text>
       </View>
 
       <View style={styles.buttonContainer}>
@@ -46,7 +46,7 @@ export default function TimeSyncScreen() {
       </View>
       
       {networkState.role === 'MASTER' && (
-        <Text style={styles.note}>
+        <Text maxFontSizeMultiplier={1.2} style={styles.note}>
           Master device runs the UDP Time Sync Server automatically.
         </Text>
       )}

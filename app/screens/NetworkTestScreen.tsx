@@ -26,7 +26,7 @@ export default function NetworkTestScreen() {
         if (Platform.Version >= 33) {
           perms.push(PermissionsAndroid.PERMISSIONS.NEARBY_WIFI_DEVICES);
         }
-        
+
         const granted = await PermissionsAndroid.requestMultiple(perms);
         const allGranted = Object.values(granted).every(
           status => status === PermissionsAndroid.RESULTS.GRANTED
@@ -84,13 +84,13 @@ export default function NetworkTestScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Network Test (Phase 2)</Text>
-      
+      <Text maxFontSizeMultiplier={1.2} style={styles.title}>Network Test (Phase 2)</Text>
+
       <View style={styles.stateContainer}>
-        <Text style={styles.stateText}>State: {networkState.state === 'PENDING' ? 'Waiting for Master to accept...' : networkState.state}</Text>
-        <Text style={styles.stateText}>Role: {networkState.role}</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.stateText}>State: {networkState.state === 'PENDING' ? 'Waiting for Master to accept...' : networkState.state}</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.stateText}>Role: {networkState.role}</Text>
         {networkState.masterIp && (
-          <Text style={styles.stateText}>Master IP: {networkState.masterIp}</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.stateText}>Master IP: {networkState.masterIp}</Text>
         )}
       </View>
 
@@ -105,15 +105,15 @@ export default function NetworkTestScreen() {
         <Button title="Stop Discover" onPress={handleStopDiscovery} />
       </View>
 
-      <Text style={styles.subtitle}>Peers Found:</Text>
+      <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Peers Found:</Text>
       <FlatList
         data={peers}
         keyExtractor={(item) => item.address}
         renderItem={({ item }) => (
           <View style={styles.peerItem}>
             <View>
-              <Text style={styles.peerName}>{item.name}</Text>
-              <Text style={styles.peerAddress}>{item.address} (Status: {item.status})</Text>
+              <Text maxFontSizeMultiplier={1.2} style={styles.peerName}>{item.name}</Text>
+              <Text maxFontSizeMultiplier={1.2} style={styles.peerAddress}>{item.address} (Status: {item.status})</Text>
             </View>
             <Button title="Connect" onPress={() => handleConnectToDevice(item.address)} disabled={networkState.state === 'CONNECTED'} />
           </View>
@@ -121,7 +121,7 @@ export default function NetworkTestScreen() {
       />
 
       <View style={styles.commandContainer}>
-        <Text style={styles.subtitle}>TCP Command Test</Text>
+        <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>TCP Command Test</Text>
         <TextInput
           style={styles.input}
           value={commandInput}
@@ -129,8 +129,8 @@ export default function NetworkTestScreen() {
         />
         <Button title="Send Command" onPress={handleSend} disabled={networkState.state !== 'CONNECTED'} />
         <View style={styles.lastCommandContainer}>
-          <Text style={styles.subtitle}>Last Received Command:</Text>
-          <Text style={styles.commandText}>{lastCommand || 'None'}</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Last Received Command:</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.commandText}>{lastCommand || 'None'}</Text>
         </View>
       </View>
     </View>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#0f3460', // was #1a1a2e, let's use a lighter blue/green to ensure it's rendering
+    backgroundColor: '#1a1a2e',
   },
   title: {
     fontSize: 24,
