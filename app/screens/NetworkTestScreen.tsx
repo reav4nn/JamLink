@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, TextInput, Alert, PermissionsAndroid, Platform } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, TextInput, Alert, PermissionsAndroid, Platform, ScrollView } from 'react-native';
 import { useJamLinkNetwork } from '../hooks/useJamLinkNetwork';
 
 export default function NetworkTestScreen() {
@@ -83,7 +83,7 @@ export default function NetworkTestScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 80 }}>
       <Text maxFontSizeMultiplier={1.2} adjustsFontSizeToFit numberOfLines={1} style={styles.title}>Network Test (Phase 2)</Text>
 
       <View style={styles.stateContainer}>
@@ -106,19 +106,15 @@ export default function NetworkTestScreen() {
       </View>
 
       <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>Peers Found:</Text>
-      <FlatList
-        data={peers}
-        keyExtractor={(item) => item.address}
-        renderItem={({ item }) => (
-          <View style={styles.peerItem}>
-            <View>
-              <Text maxFontSizeMultiplier={1.2} style={styles.peerName}>{item.name}</Text>
-              <Text maxFontSizeMultiplier={1.2} style={styles.peerAddress}>{item.address} (Status: {item.status})</Text>
-            </View>
-            <Button title="Connect" onPress={() => handleConnectToDevice(item.address)} disabled={networkState.state === 'CONNECTED'} />
+      {peers.map((item) => (
+        <View style={styles.peerItem} key={item.address}>
+          <View style={{ flex: 1, paddingRight: 8 }}>
+            <Text maxFontSizeMultiplier={1.2} style={styles.peerName}>{item.name}</Text>
+            <Text maxFontSizeMultiplier={1.2} style={styles.peerAddress}>{item.address} (Status: {item.status})</Text>
           </View>
-        )}
-      />
+          <Button title="Connect" onPress={() => handleConnectToDevice(item.address)} disabled={networkState.state === 'CONNECTED'} />
+        </View>
+      ))}
 
       <View style={styles.commandContainer}>
         <Text maxFontSizeMultiplier={1.2} style={styles.subtitle}>TCP Command Test</Text>
@@ -133,7 +129,7 @@ export default function NetworkTestScreen() {
           <Text maxFontSizeMultiplier={1.2} style={styles.commandText}>{lastCommand || 'None'}</Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

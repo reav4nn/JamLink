@@ -52,7 +52,7 @@ class TimeSyncClient(private val masterIp: String) {
                 val seq = sequenceCounter++
                 outstandingSequences.add(seq)
                 
-                val t1 = System.nanoTime()
+                val t1 = System.currentTimeMillis() * 1_000_000L
                 val request = TimeSyncPacket(TimeSyncPacket.TYPE_REQUEST, t1, 0, 0, seq)
                 val reqBytes = request.toByteArray()
                 
@@ -63,7 +63,7 @@ class TimeSyncClient(private val masterIp: String) {
                 
                 try {
                     socket.receive(responsePacket)
-                    val t4 = System.nanoTime()
+                    val t4 = System.currentTimeMillis() * 1_000_000L
                     
                     val response = TimeSyncPacket.fromByteArray(buffer)
                     if (response.type == TimeSyncPacket.TYPE_RESPONSE && outstandingSequences.contains(response.sequence)) {

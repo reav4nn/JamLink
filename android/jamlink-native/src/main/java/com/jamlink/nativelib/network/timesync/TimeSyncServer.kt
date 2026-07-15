@@ -61,5 +61,5 @@ class TimeSyncServer(private val scope: CoroutineScope) {
         socket?.close()
     }
 
-    private fun monoNs(): Long = System.nanoTime()
+    private fun monoNs(): Long = System.currentTimeMillis() * 1_000_000L
 }
