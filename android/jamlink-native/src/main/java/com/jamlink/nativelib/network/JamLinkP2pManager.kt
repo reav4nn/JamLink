@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import android.location.LocationManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 
 class JamLinkP2pManager(private val context: Context) {
 
@@ -34,24 +35,34 @@ class JamLinkP2pManager(private val context: Context) {
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
+            val action = intent.action
+            Log.d("JamLinkP2p", "BroadcastReceiver onReceive: action=$action")
+            when (action) {
                 WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
-                    // Wifi P2P is enabled/disabled
+                    val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
+                    Log.d("JamLinkP2p", "WIFI_P2P_STATE_CHANGED_ACTION: state=$state")
                 }
                 WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
+                    Log.d("JamLinkP2p", "WIFI_P2P_PEERS_CHANGED_ACTION received, requesting peers...")
                     @SuppressLint("MissingPermission")
                     manager?.requestPeers(channel) { peerList: WifiP2pDeviceList? ->
                         val devices = peerList?.deviceList?.toList() ?: emptyList()
+                        Log.d("JamLinkP2p", "requestPeers callback: found ${devices.size} peers")
+                        devices.forEach { device ->
+                            Log.d("JamLinkP2p", " - Peer: ${device.deviceName} (${device.deviceAddress}), status=${device.status}")
+                        }
                         _peers.value = devices
                     }
                 }
                 WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
+                    Log.d("JamLinkP2p", "WIFI_P2P_CONNECTION_CHANGED_ACTION received, requesting connection info...")
                     manager?.requestConnectionInfo(channel) { info ->
+                        Log.d("JamLinkP2p", "requestConnectionInfo callback: groupFormed=${info?.groupFormed}, isGroupOwner=${info?.isGroupOwner}, ownerAddress=${info?.groupOwnerAddress?.hostAddress}")
                         _connectionInfo.value = info
                     }
                 }
                 WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                    // This device details changed
+                    Log.d("JamLinkP2p", "WIFI_P2P_THIS_DEVICE_CHANGED_ACTION received")
                 }
             }
         }
@@ -100,10 +111,20 @@ class JamLinkP2pManager(private val context: Context) {
             return
         }
 
+        Log.d("JamLinkP2p", "startDiscovery: Initiating peer discovery...")
         manager?.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() = onSuccess()
-            override fun onFailure(reasonCode: Int) = onFailure(reasonCode)
-        }) ?: onFailure(WifiP2pManager.ERROR)
+            override fun onSuccess() {
+                Log.d("JamLinkP2p", "discoverPeers: onSuccess callback fired")
+                onSuccess()
+            }
+            override fun onFailure(reasonCode: Int) {
+                Log.e("JamLinkP2p", "discoverPeers: onFailure callback fired with reasonCode=$reasonCode")
+                onFailure(reasonCode)
+            }
+        }) ?: run {
+            Log.e("JamLinkP2p", "discoverPeers failed: manager is null")
+            onFailure(WifiP2pManager.ERROR)
+        }
     }
 
     fun stopDiscovery(onSuccess: () -> Unit, onFailure: (Int) -> Unit) {
