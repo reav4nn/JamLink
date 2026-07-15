@@ -84,7 +84,7 @@ export default function NetworkTestScreen() {
 
   return (
     <View style={styles.container}>
-      <Text maxFontSizeMultiplier={1.2} style={styles.title}>Network Test (Phase 2)</Text>
+      <Text maxFontSizeMultiplier={1.2} adjustsFontSizeToFit numberOfLines={1} style={styles.title}>Network Test (Phase 2)</Text>
 
       <View style={styles.stateContainer}>
         <Text maxFontSizeMultiplier={1.2} style={styles.stateText}>State: {networkState.state === 'PENDING' ? 'Waiting for Master to accept...' : networkState.state}</Text>
@@ -176,8 +176,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   buttonWrapper: {
-    flexBasis: '30%',
-    minWidth: 100,
     flexGrow: 1,
   },
   peerItem: {

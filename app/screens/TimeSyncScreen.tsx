@@ -16,7 +16,7 @@ export default function TimeSyncScreen() {
 
   return (
     <View style={styles.container}>
-      <Text maxFontSizeMultiplier={1.2} style={styles.title}>Time Sync (Phase 3)</Text>
+      <Text maxFontSizeMultiplier={1.2} adjustsFontSizeToFit numberOfLines={1} style={styles.title}>Time Sync (Phase 3)</Text>
       
       <View style={styles.card}>
         <Text maxFontSizeMultiplier={1.2} style={styles.label}>Network Role:</Text>
