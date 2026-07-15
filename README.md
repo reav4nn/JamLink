@@ -66,6 +66,7 @@ graph TD
 
 Make sure your development machine has:
 - **Node.js** (>= 22.11.0)
+- **Java Development Kit (JDK 17)**: JDK 17 is required for compilation. Newer versions (JDK 21+) output native-access warnings that crash the Android Gradle Plugin's `Prefab` JNI configuration.
 - **Android SDK** with Command Line Tools, NDK (version `27.1.12297006`), and CMake (>= `3.22.1`)
 - **Android Studio** configured for React Native
 
@@ -84,14 +85,15 @@ Make sure your development machine has:
 
 ## Build Configuration
 
-### Java 21+ Native Access
-If compiling with Java 21+, you must permit native access for JNI and Prefab libraries. If you get compilation warning errors during the Gradle build, export the following environment variable before building:
+### JDK 17 Requirement
+To avoid build failures with the C++ `Prefab` packaging system, you **must use JDK 17** for compiling this project. 
 
-```bash
-export JAVA_TOOL_OPTIONS="--enable-native-access=ALL-UNNAMED"
-```
+Newer JDK versions (such as JDK 21 or JDK 25) introduce strict JNI/native-access checks and print warning logs (e.g., *"WARNING: A restricted method in java.lang.System has been called"*). The Android Gradle Plugin parses stderr during Prefab package generation and treats these JVM warnings as fatal configuration crashes.
 
-This flag is also configured inside `android/gradle.properties` under `org.gradle.jvmargs`.
+If your system-default Java is newer than JDK 17:
+1. Install JDK 17.
+2. Point your `JAVA_HOME` environment variable to the JDK 17 path (e.g. `export JAVA_HOME=/usr/lib/jvm/java-17-openjdk`) before running `./gradlew`.
+3. If building via Android Studio, configure **Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JDK** to target JDK 17.
 
 ### Offline JS Bundling
 When running on physical devices without access to a running Metro server over the same network, bundle the JS assets directly into the application package prior to installation:
