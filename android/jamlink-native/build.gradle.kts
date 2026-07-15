@@ -51,4 +51,5 @@ afterEvaluate {
 dependencies {
     implementation("com.facebook.react:react-android")
     // Oboe will be added in Phase 4
+    testImplementation("junit:junit:4.13.2")
 }

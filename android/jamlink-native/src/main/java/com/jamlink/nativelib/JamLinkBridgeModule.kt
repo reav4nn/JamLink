@@ -134,4 +134,24 @@ class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
             promise.reject("SEND_COMMAND_CRASH", e.message, e)
         }
     }
+
+    @ReactMethod
+    override fun getTimeSyncState(promise: Promise) {
+        try {
+            val stateJson = networkManager.timeSyncManager.getTimeSyncStateJson()
+            promise.resolve(stateJson)
+        } catch (e: Exception) {
+            promise.reject("GET_SYNC_STATE_CRASH", e.message, e)
+        }
+    }
+
+    @ReactMethod
+    override fun forceSyncNow(promise: Promise) {
+        try {
+            networkManager.timeSyncManager.forceSyncNow()
+            promise.resolve(null)
+        } catch (e: Exception) {
+            promise.reject("FORCE_SYNC_CRASH", e.message, e)
+        }
+    }
 }

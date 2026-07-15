@@ -4,6 +4,7 @@ project("jamlink-native")
 add_library(jamlink-native SHARED
     jamlink-jni.cpp
     jamlink-engine.cpp
+    ntp-math.cpp
 )
 
 find_library(log-lib log)

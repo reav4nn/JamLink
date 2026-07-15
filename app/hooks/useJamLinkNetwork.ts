@@ -14,10 +14,18 @@ export interface NetworkState {
   masterIp?: string;
 }
 
+export interface TimeSyncState {
+  status: 'NOT_SYNCED' | 'SYNCING' | 'SYNCED' | 'ERROR';
+  offsetMs: number;
+  rttMs: number;
+  sampleCount: number;
+}
+
 export function useJamLinkNetwork() {
   const [peers, setPeers] = useState<Peer[]>([]);
   const [networkState, setNetworkState] = useState<NetworkState>({ state: 'DISCONNECTED', role: 'NONE' });
   const [lastCommand, setLastCommand] = useState<string | null>(null);
+  const [timeSyncState, setTimeSyncState] = useState<TimeSyncState>({ status: 'NOT_SYNCED', offsetMs: 0, rttMs: 0, sampleCount: 0 });
 
   useEffect(() => {
     const peerSub = DeviceEventEmitter.addListener('onPeersUpdated', (peersList: Peer[]) => {
@@ -32,10 +40,20 @@ export function useJamLinkNetwork() {
       setLastCommand(cmd);
     });
 
+    const timeSyncSub = DeviceEventEmitter.addListener('onTimeSyncStateChanged', (stateJson: string) => {
+      try {
+        const state = JSON.parse(stateJson);
+        setTimeSyncState(state);
+      } catch (e) {
+        console.error("Failed to parse time sync state", e);
+      }
+    });
+
     return () => {
       peerSub.remove();
       stateSub.remove();
       commandSub.remove();
+      timeSyncSub.remove();
     };
   }, []);
 
@@ -67,6 +85,15 @@ export function useJamLinkNetwork() {
     await NativeJamLinkBridge.sendCommand(cmd);
   }, []);
 
+  const getTimeSyncState = useCallback(async () => {
+    const json = await NativeJamLinkBridge.getTimeSyncState();
+    return JSON.parse(json) as TimeSyncState;
+  }, []);
+
+  const forceSyncNow = useCallback(async () => {
+    await NativeJamLinkBridge.forceSyncNow();
+  }, []);
+
   return {
     peers,
     networkState,
@@ -78,5 +105,8 @@ export function useJamLinkNetwork() {
     connectToDevice,
     disconnect,
     sendCommand,
+    timeSyncState,
+    getTimeSyncState,
+    forceSyncNow,
   };
 }

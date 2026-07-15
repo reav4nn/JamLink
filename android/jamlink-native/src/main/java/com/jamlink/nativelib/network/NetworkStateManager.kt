@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
+import com.jamlink.nativelib.network.timesync.TimeSyncManager
+import com.jamlink.nativelib.network.timesync.Role
 
 class NetworkStateManager(private val reactContext: ReactApplicationContext) {
 
@@ -16,6 +18,7 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
     val p2pManager = JamLinkP2pManager(reactContext)
     private var tcpServer: TcpCommandServer? = null
     private var tcpClient: TcpCommandClient? = null
+    val timeSyncManager: TimeSyncManager = TimeSyncManager(scope)
 
     private var currentRole: String = "NONE" // "MASTER", "CLIENT", "NONE"
 
@@ -42,6 +45,7 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
                     currentRole = "NONE"
                     sendConnectionState("DISCONNECTED")
                     stopTcp()
+                    timeSyncManager.stop()
                     return@collectLatest
                 }
 
@@ -49,14 +53,25 @@ class NetworkStateManager(private val reactContext: ReactApplicationContext) {
                     currentRole = "MASTER"
                     sendConnectionState("CONNECTED", "MASTER", info.groupOwnerAddress?.hostAddress)
                     startTcpServer()
+                    timeSyncManager.start(Role.MASTER)
                 } else if (info.groupFormed) {
                     currentRole = "CLIENT"
                     sendConnectionState("CONNECTED", "CLIENT", info.groupOwnerAddress?.hostAddress)
                     startTcpClient(info.groupOwnerAddress?.hostAddress ?: return@collectLatest)
+                    timeSyncManager.start(Role.CLIENT, info.groupOwnerAddress?.hostAddress)
                 } else {
                     currentRole = "NONE"
                     sendConnectionState("DISCONNECTED")
                     stopTcp()
+                    timeSyncManager.stop()
+                }
+            }
+        }
+        
+        scope.launch {
+            timeSyncManager.stateFlow.collectLatest { state ->
+                if (state.syncStatus.name != "NOT_SYNCED") {
+                    sendEvent("onTimeSyncStateChanged", timeSyncManager.getTimeSyncStateJson())
                 }
             }
         }

@@ -10,6 +10,10 @@ export interface Spec extends TurboModule {
   connectToDevice(deviceAddress: string): Promise<void>;
   disconnect(): Promise<void>;
   sendCommand(commandJson: string): Promise<void>;
+  
+  // Phase 3 — Time Sync
+  getTimeSyncState(): Promise<string>;
+  forceSyncNow(): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('JamLinkBridge');
