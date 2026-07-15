@@ -13,6 +13,8 @@ import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withTimeoutOrNull
 
 class TcpCommandServer {
@@ -63,22 +65,27 @@ class TcpCommandServer {
     }
 
     suspend fun broadcastCommand(commandJson: String) = withContext(Dispatchers.IO) {
-        val disconnectedClients = mutableListOf<String>()
-        clientWriters.forEach { (clientId, writer) ->
-            try {
-                val result = withTimeoutOrNull(500L) {
-                    writer.println(commandJson)
-                    writer.checkError()
+        val disconnectedClients = clientWriters.map { (clientId, writer) ->
+            async {
+                try {
+                    // Note: withTimeoutOrNull doesn't immediately reclaim the thread if writer.println() 
+                    // blocks synchronously, but using async ensures a hung write won't delay other clients.
+                    val result = withTimeoutOrNull(500L) {
+                        writer.println(commandJson)
+                        writer.checkError()
+                    }
+                    if (result == null || result == true) {
+                        println("TCP write failed or timed out for client $clientId")
+                        clientId
+                    } else {
+                        null
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    clientId
                 }
-                if (result == null || result == true) {
-                    println("TCP write failed or timed out for client $clientId")
-                    disconnectedClients.add(clientId)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                disconnectedClients.add(clientId)
             }
-        }
+        }.awaitAll().filterNotNull()
         
         disconnectedClients.forEach { clientId ->
             clientWriters.remove(clientId)
