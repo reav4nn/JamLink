@@ -69,7 +69,15 @@ class JamLinkBridgeModule(private val reactContext: ReactApplicationContext) :
         try {
             networkManager.p2pManager.startDiscovery(
                 onSuccess = { promise.resolve(null) },
-                onFailure = { promise.reject("DISCOVERY_ERROR", "Reason Code: $it") }
+                onFailure = { promise.reject("DISCOVERY_ERROR", "Reason Code: $it") },
+                onLocationDisabled = {
+                    val map = com.facebook.react.bridge.Arguments.createMap()
+                    map.putString("reason", "LOCATION_DISABLED")
+                    reactContext
+                        .getJSModule(com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                        .emit("onDiscoveryBlocked", map)
+                    promise.reject("LOCATION_DISABLED", "Location services are disabled")
+                }
             )
         } catch (e: Exception) {
             promise.reject("DISCOVERY_CRASH", e.message, e)

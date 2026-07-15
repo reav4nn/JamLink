@@ -14,6 +14,9 @@ import android.os.Looper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import android.location.LocationManager
+import android.os.Build
+import android.provider.Settings
 
 class JamLinkP2pManager(private val context: Context) {
 
@@ -75,7 +78,28 @@ class JamLinkP2pManager(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun startDiscovery(onSuccess: () -> Unit, onFailure: (Int) -> Unit) {
+    fun startDiscovery(
+        onSuccess: () -> Unit,
+        onFailure: (Int) -> Unit,
+        onLocationDisabled: (() -> Unit)? = null
+    ) {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        val isLocationEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            locationManager?.isLocationEnabled == true
+        } else {
+            val mode = Settings.Secure.getInt(
+                context.contentResolver,
+                Settings.Secure.LOCATION_MODE,
+                Settings.Secure.LOCATION_MODE_OFF
+            )
+            mode != Settings.Secure.LOCATION_MODE_OFF
+        }
+
+        if (!isLocationEnabled) {
+            onLocationDisabled?.invoke()
+            return
+        }
+
         manager?.discoverPeers(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() = onSuccess()
             override fun onFailure(reasonCode: Int) = onFailure(reasonCode)

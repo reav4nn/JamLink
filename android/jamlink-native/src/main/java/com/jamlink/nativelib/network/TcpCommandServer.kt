@@ -13,6 +13,7 @@ import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.withTimeoutOrNull
 
 class TcpCommandServer {
     private var serverSocket: ServerSocket? = null
@@ -62,12 +63,25 @@ class TcpCommandServer {
     }
 
     suspend fun broadcastCommand(commandJson: String) = withContext(Dispatchers.IO) {
-        clientWriters.values.forEach { writer ->
+        val disconnectedClients = mutableListOf<String>()
+        clientWriters.forEach { (clientId, writer) ->
             try {
-                writer.println(commandJson)
+                val result = withTimeoutOrNull(500L) {
+                    writer.println(commandJson)
+                    writer.checkError()
+                }
+                if (result == null || result == true) {
+                    println("TCP write failed or timed out for client $clientId")
+                    disconnectedClients.add(clientId)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
+                disconnectedClients.add(clientId)
             }
+        }
+        
+        disconnectedClients.forEach { clientId ->
+            clientWriters.remove(clientId)
         }
     }
 
